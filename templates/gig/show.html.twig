@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ gig }}{% endblock %}
+
+{% block body %}
+    <h2>{{ gig }} Gig</h2>
+
+    {% if comments|length > 0 %}
+        <div>There are {{ comments|length }} comments.</div>
+        {% for comment in comments %}
+            <h4>{{ comment.authorId }}</h4>
+            <small>
+                {{ comment.createdAt|format_datetime('medium', 'short') }}
+            </small>
+
+            <p>{{ comment.text }}</p>
+        {% endfor %}
+        {% if previous >= 0 %}
+            <a href="{{ path('gig', { id: gig.id, offset: previous }) }}">Previous</a>
+        {% endif %}
+        {% if next < comments|length %}
+            <a href="{{ path('gig', { id: gig.id, offset: next }) }}">Next</a>
+        {% endif %}
+    {% else %}
+        <div>No comments have been posted yet for this gig.</div>
+    {% endif %}
+{% endblock %}

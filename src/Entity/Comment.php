@@ -38,6 +38,11 @@ class Comment
      */
     private $gig;
 
+    public function __toString(): string
+    {
+        return 'By: ' . $this->author_id . 'CreatedAt: ' . $this->getCreatedAt()->format('Y-m-d');
+    }
+
     public function getId(): ?int
     {
         return $this->id;
