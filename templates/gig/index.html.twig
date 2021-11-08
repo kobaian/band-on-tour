@@ -8,7 +8,7 @@
     {% for gig in gigs %}
         <h4>{{ gig }}</h4>
         <p>
-            <a href="{{ path('gig', { id: gig.id }) }}">View</a>
+            <a href="{{ path('gig', { slug: gig.slug }) }}">View</a>
         </p>
     {% endfor %}
 {% endblock %}

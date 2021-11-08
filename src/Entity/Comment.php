@@ -4,9 +4,11 @@ namespace App\Entity;
 
 use App\Repository\CommentRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=CommentRepository::class)
+ * @ORM\HasLifecycleCallbacks()
  */
 class Comment
 {
@@ -20,11 +22,13 @@ class Comment
     /**
      * @ORM\Column(type="integer")
      */
+    #[Assert\NotBlank]
     private $author_id;
 
     /**
      * @ORM\Column(type="text")
      */
+    #[Assert\NotBlank]
     private $text;
 
     /**
@@ -37,6 +41,11 @@ class Comment
      * @ORM\JoinColumn(nullable=false)
      */
     private $gig;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $photoFilename;
 
     public function __toString(): string
     {
@@ -84,6 +93,14 @@ class Comment
         return $this;
     }
 
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedAtValue()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
+
     public function getGig(): ?Gig
     {
         return $this->gig;
@@ -92,6 +109,18 @@ class Comment
     public function setGig(?Gig $gig): self
     {
         $this->gig = $gig;
+
+        return $this;
+    }
+
+    public function getPhotoFilename(): ?string
+    {
+        return $this->photoFilename;
+    }
+
+    public function setPhotoFilename(?string $photoFilename): self
+    {
+        $this->photoFilename = $photoFilename;
 
         return $this;
     }

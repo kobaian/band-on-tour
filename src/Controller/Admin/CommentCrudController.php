@@ -9,8 +9,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class CommentCrudController extends AbstractCrudController
@@ -29,13 +31,13 @@ class CommentCrudController extends AbstractCrudController
             ->setDefaultSort(['createdAt' => 'DESC']);
     }
 
-    public function createEntity(string $entityFqcn)
-    {
-        $comment = new Comment();
-        $comment->setCreatedAt(\DateTimeImmutable::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s')));
-
-        return $comment;
-    }
+//    public function createEntity(string $entityFqcn)
+//    {
+//        $comment = new Comment();
+//        $comment->setCreatedAt(\DateTimeImmutable::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s')));
+//
+//        return $comment;
+//    }
 
     public function configureFilters(Filters $filters): Filters
     {
@@ -51,5 +53,9 @@ class CommentCrudController extends AbstractCrudController
             ->hideOnIndex();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
+        yield ImageField::new('photoFilename')
+            ->setBasePath('/uploads/photos')
+            ->setUploadDir('public/uploads/photos')
+            ->setLabel('Photo');
     }
 }
