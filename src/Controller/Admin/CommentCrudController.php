@@ -31,14 +31,6 @@ class CommentCrudController extends AbstractCrudController
             ->setDefaultSort(['createdAt' => 'DESC']);
     }
 
-//    public function createEntity(string $entityFqcn)
-//    {
-//        $comment = new Comment();
-//        $comment->setCreatedAt(\DateTimeImmutable::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s')));
-//
-//        return $comment;
-//    }
-
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -49,6 +41,7 @@ class CommentCrudController extends AbstractCrudController
     {
         yield AssociationField::new('gig');
         yield NumberField::new('author_id');
+        yield TextField::new('status');
         yield TextareaField::new('text')
             ->hideOnIndex();
         yield DateTimeField::new('createdAt')

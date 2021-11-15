@@ -5,13 +5,16 @@ namespace App\Controller;
 use App\Entity\Comment;
 use App\Entity\Gig;
 use App\Form\CommentFormType;
+use App\Message\CommentMessage;
 use App\Repository\CommentRepository;
 use App\Repository\GigRepository;
+use App\SpamChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
 
@@ -27,13 +30,19 @@ class GigController extends AbstractController
      */
     private $entityManager;
 
-    public function __construct(Environment $twig, EntityManagerInterface $entityManager)
+    /**
+     * @var \Symfony\Component\Messenger\MessageBusInterface
+     */
+    private $bus;
+
+    public function __construct(Environment $twig, EntityManagerInterface $entityManager, MessageBusInterface $bus)
     {
         $this->twig = $twig;
         $this->entityManager = $entityManager;
+        $this->bus = $bus;
     }
 
-    #[Route('/', name: 'gigs')]
+    #[Route('gigs/', name: 'gigs')]
     public function index(GigRepository $gigRepository): Response
     {
         return new Response($this->twig->render('gig/index.html.twig', [
@@ -43,8 +52,13 @@ class GigController extends AbstractController
     }
 
     #[Route('/gig/{slug}', name: 'gig')]
-    public function show(Request $request, Gig $gig, CommentRepository $commentRepository, string $photoDir)
-    {
+    public function show(
+        Request $request,
+        Gig $gig,
+        CommentRepository $commentRepository,
+        SpamChecker $spamChecker,
+        string $photoDir
+    ) {
         $offset = max(0, $request->query->getInt('offset'));
         $paginator = $commentRepository->getCommentPaginator($gig, $offset);
 
@@ -66,6 +80,15 @@ class GigController extends AbstractController
 
             $this->entityManager->persist($comment);
             $this->entityManager->flush();
+
+            $context = [
+                'user_ip' => $request->getClientIp(),
+                'user_agent' => $request->headers->get('user-agent'),
+                'referrer' => $request->headers->get('referer'),
+                'permalink' => $request->getUri(),
+            ];
+
+            $this->bus->dispatch(new CommentMessage($comment->getId(), $context));
 
             return $this->redirectToRoute('gig', ['slug' => $gig->getSlug()]);
         }

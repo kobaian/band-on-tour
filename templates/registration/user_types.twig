@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register{% endblock %}
+
+{% block body %}
+    <div class="user-type container">
+        <h1>Choose your account type</h1>
+        <div class="user-type__block"><a href="{{ path('app_register', { type: 1 }) }}">Band</a></div>
+        <div class="user-type__block"><a href="{{ path('app_register', { type: 2 }) }}">Promoter</a></div>
+        <div class="user-type__block"><a href="{{ path('app_register', { type: 3 }) }}">Fan</a></div>
+    </div>
+{% endblock %}

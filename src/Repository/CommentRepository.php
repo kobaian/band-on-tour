@@ -27,7 +27,9 @@ class CommentRepository extends ServiceEntityRepository
     {
         $query = $this->createQueryBuilder('c')
             ->andWhere('c.gig = :gig')
+            ->andWhere('c.status = :status')
             ->setParameter('gig', $gig)
+            ->setParameter('status', Comment::STATUS_PUBLISHED)
             ->orderBy('c.createdAt', 'DESC')
             ->setMaxResults(self::PAGINATOR_PER_PAGE)
             ->setFirstResult($offset)

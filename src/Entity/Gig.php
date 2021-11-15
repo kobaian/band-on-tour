@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\GigRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,6 +13,13 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 /**
  * @ORM\Entity(repositoryClass=GigRepository::class)
  * @UniqueEntity("slug")
+ *
+ * @ApiResource(
+ *     collectionOperations={"get"={"normalization_context"={"groups"="gig:list"}}},
+ *     itemOperations={"get"={"normalization_context"={"groups"="gig:item"}}},
+ *     order={"name"="ASC"},
+ *     paginationEnabled=false
+ * )
  */
 class Gig
 {
@@ -20,32 +28,44 @@ class Gig
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
+    #[Groups(['gig:list', 'gig:item'])]
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
+    #[Groups(['gig:list', 'gig:item'])]
     private $name;
 
     /**
      * @ORM\Column(type="datetime")
      */
+    #[Groups(['gig:list', 'gig:item'])]
     private $date;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
      */
+    #[Groups(['gig:list', 'gig:item'])]
     private $is_cancelled;
 
     /**
      * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="gig", orphanRemoval=true)
      */
+    #[Groups(['gig:list', 'gig:item'])]
     private $comments;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      */
+    #[Groups(['gig:list', 'gig:item'])]  
     private $slug;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=City::class, inversedBy="gigs")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $city;
 
     public function __construct()
     {
@@ -145,5 +165,17 @@ class Gig
         if (!$this->slug || '-' === $this->slug) {
             $this->slug = (string)$slugger->slug((string)$this)->lower();
         }
+    }
+
+    public function getCity(): ?City
+    {
+        return $this->city;
+    }
+
+    public function setCity(?City $city): self
+    {
+        $this->city = $city;
+
+        return $this;
     }
 }
